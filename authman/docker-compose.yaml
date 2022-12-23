@@ -1,0 +1,47 @@
+version: !!str 3
+
+services:
+    authman:
+      image: authman:1
+      restart: unless-stopped
+      depends_on:
+        - mysql
+      env_file:
+        - ./authman_defaults.env
+        - ./authman_DB_URI_override.env
+      expose:
+        - 8080
+      labels:
+        app.fanrome.devops/name: authman
+        app.fanrome.devops/parts_of: authman
+        app.fanrome.devops/created_by: ahmadmalekiha
+        app.fanrome.devops/env: $ENV    # should export on hostmachin for example : export ENV=production
+      networks:
+        - database
+        - nginx
+
+    mysql:
+      image: mysql
+      restart: unless-stopped
+      env_file: 
+        - ./db.env
+      expose:
+        - 3306
+      labels:
+        app.fanrome.devops/name: mysql
+        app.fanrome.devops/part-of: authman
+        app.fanrome.devops/created_by: ahmadmalekiha
+        app.fanrome.devops/ENV: $ENV
+      networks:
+        - database
+      volumes:
+        - mysql_data:/var/lib/mysql
+
+networks:
+  database:
+  nginx:
+    external: true
+
+volumes:
+  mysql_data:
+#    external: true
